@@ -36,3 +36,6 @@ logs/
 # Vercel CLI
 .vercel
 .vercel
+
+.vercel
+.env*
