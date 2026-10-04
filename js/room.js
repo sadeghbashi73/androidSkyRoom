@@ -6,7 +6,7 @@
  * cross that boundary is stated plainly instead of faked. See
  * js/capabilities.js for the platform constraints.
  */
-import { Storage, normalizeSkyroomUrl } from './storage.js';
+import { Storage, normalizeSkyroomUrl, isLegacyBrokenUrl } from './storage.js';
 import { Perms, WakeLock, toast } from './notifications.js';
 import {
   screenShareStatus,
@@ -56,7 +56,7 @@ async function loadRoom() {
 
   state.room = room;
   $('#roomName').textContent = room.name || 'کلاس بدون نام';
-  $('#roomId').textContent = room.roomId ? `شناسه: ${room.roomId}` : room.url;
+  $('#roomId').textContent = room.roomId ? `اتاق: ${room.roomId}` : room.url;
   $('#roomUrl').value = room.url || '';
 
   if (room.notes) {
@@ -94,6 +94,10 @@ function renderPassword() {
  */
 function openClass() {
   if (!state.room?.url) return;
+  if (isLegacyBrokenUrl(state.room.url)) {
+    toast('لینک این کلاس ناقص است؛ با «ویرایش» لینک کامل کلاس را وارد کنید', 'error', 6000);
+    return;
+  }
   // Best effort: keep this screen awake if the browser allows it, though the
   // lock is released as soon as we leave the page.
   WakeLock.acquire();

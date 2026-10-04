@@ -1,7 +1,7 @@
 /**
  * Main app - dashboard logic.
  */
-import { Storage, uid, normalizeSkyroomUrl } from './storage.js';
+import { Storage, uid, normalizeSkyroomUrl, isLegacyBrokenUrl } from './storage.js';
 import { Notify, Perms, WakeLock, toast } from './notifications.js';
 import { platform, isNativeApp, APK_URL } from './capabilities.js';
 
@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // If URL has #new, open add modal immediately
   if (location.hash === '#new') openModal();
+  // Edit request from the room page (room.html → "ویرایش").
+  const edit = location.hash.match(/^#edit-(.+)$/);
+  if (edit) openModal(decodeURIComponent(edit[1]));
 });
 
 async function registerSW() {
@@ -177,6 +180,12 @@ function roomCardHTML(room) {
 async function openRoom(id, btn) {
   const room = await Storage.getRoom(id);
   if (!room) return;
+  if (isLegacyBrokenUrl(room.url)) {
+    // Saved by an older version that guessed a non-existent /chs/room/ link.
+    toast('لینک این کلاس ناقص است. لینک کامل کلاس را از مدیر کلاس بگیرید و اینجا وارد کنید.', 'error', 6000);
+    openModal(id);
+    return;
+  }
   // Update lastUsed
   room.lastUsed = Date.now();
   await Storage.updateRoom(room);
@@ -233,7 +242,7 @@ async function handleFormSubmit(e) {
   const urlInput = form.url.value.trim();
   const norm = normalizeSkyroomUrl(urlInput);
   if (!norm) {
-    toast('آدرس یا شناسه کلاس معتبر نیست', 'error');
+    toast('لینک کامل کلاس را وارد کنید؛ مثل https://www.skyroom.online/ch/نام-حساب/نام-اتاق', 'error', 6000);
     return;
   }
   const room = {

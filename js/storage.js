@@ -94,22 +94,48 @@ export function uid() {
 }
 
 /**
- * Sanitize skyroom URL and extract room ID.
- * Supports skyroom.online/chs/room/{id} or just the bare ID.
+ * Sanitize a Skyroom class link and extract its room path.
+ *
+ * Real class links look like https://www.skyroom.online/ch/{account}/{room}.
+ * Accepted input:
+ *   - a full link (any https host, so white-label Skyroom domains work too)
+ *   - a link without the protocol (skyroom.online/ch/acme/math)
+ *   - just "{account}/{room}"
+ * A single bare word is rejected: the account name cannot be guessed, and
+ * the old guess (/chs/room/{id}) does not exist on Skyroom and gave a 404.
+ *
+ * @returns {{url:string, roomId:string|null}|null}
  */
 export function normalizeSkyroomUrl(input) {
   if (!input) return null;
   let str = String(input).trim();
-  // Add protocol if missing
-  if (!/^https?:\/\//i.test(str) && str.includes('skyroom')) {
+  if (!str) return null;
+
+  // "account/room" shorthand.
+  const short = str.match(/^\/?([\w-]+)\/([\w.-]+)\/?$/);
+  if (short) {
+    return {
+      url: `https://www.skyroom.online/ch/${short[1]}/${short[2]}`,
+      roomId: `${short[1]}/${short[2]}`,
+    };
+  }
+
+  if (!/^https?:\/\//i.test(str)) {
+    // Only something that starts with a host name can become a link.
+    if (!/^[\w-]+(\.[\w-]+)+(\/|$)/.test(str)) return null;
     str = 'https://' + str;
   }
-  // Extract room id from URL
-  const m = str.match(/skyroom\.online\/(?:[^/]+\/)?room\/([\w-]+)/i);
-  if (m) return { url: str, roomId: m[1] };
-  // Treat as bare room id
-  if (/^[a-z0-9_-]{4,}$/i.test(str)) {
-    return { url: `https://skyroom.online/chs/room/${str}`, roomId: str };
-  }
-  return { url: str, roomId: null };
+
+  let u;
+  try { u = new URL(str); } catch { return null; }
+  if (u.protocol === 'http:') u.protocol = 'https:';
+  if (isLegacyBrokenUrl(u.toString())) return null;
+
+  const m = u.pathname.match(/\/ch\/([^/]+)\/([^/?#]+)/i);
+  return { url: u.toString(), roomId: m ? `${m[1]}/${m[2]}` : null };
+}
+
+/** True for links saved by older versions with the invented /chs/room/ path. */
+export function isLegacyBrokenUrl(url) {
+  return /skyroom\.online\/chs\/room\//i.test(url || '');
 }

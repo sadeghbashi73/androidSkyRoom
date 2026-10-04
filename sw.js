@@ -6,7 +6,7 @@
  *   - Cross-origin (skyroom itself): network-only, no cache (handled by Skyroom's own SW/CDN)
  */
 
-const CACHE_VERSION = 'v1.2.0';
+const CACHE_VERSION = 'v1.2.1';
 const SHELL_CACHE = `skyroom-shell-${CACHE_VERSION}`;
 const STATIC_CACHE = `skyroom-static-${CACHE_VERSION}`;
 
