@@ -1,0 +1,16 @@
+{
+  "name": "skyroom-pwa",
+  "version": "1.0.0",
+  "description": "PWA wrapper برای دسترسی سریع به کلاس‌های آنلاين اسکای‌روم روی اندروید",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node tools/serve.js",
+    "start:https": "node tools/serve.js --https",
+    "icons": "node tools/generate-icons.js"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

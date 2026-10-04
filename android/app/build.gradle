@@ -1,0 +1,68 @@
+plugins {
+    id 'com.android.application'
+}
+
+// Release signing is read from android/keystore.properties (never committed).
+// Without it, `assembleRelease` produces an unsigned APK.
+def keystorePropsFile = rootProject.file('keystore.properties')
+def keystoreProps = new Properties()
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace 'online.skyroom.presenter'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'online.skyroom.presenter'
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    signingConfigs {
+        if (keystorePropsFile.exists()) {
+            release {
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (keystorePropsFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets {
+        main.assets.srcDirs += layout.buildDirectory.dir('pwa-assets')
+    }
+}
+
+// Bundle the PWA launcher (repo root) into the APK so the home screen works
+// offline and without depending on any external host.
+def syncPwa = tasks.register('syncPwa', Sync) {
+    def root = rootProject.projectDir.parentFile
+    from(root) {
+        include '*.html', 'manifest.webmanifest', 'css/**', 'js/**', 'icons/**'
+    }
+    into layout.buildDirectory.dir('pwa-assets/www')
+}
+tasks.named('preBuild') { dependsOn syncPwa }

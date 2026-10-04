@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fa-IR" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6366f1" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="اسکای‌روم" />
+  <meta name="description" content="دسترسی سریع به کلاس‌های آنلاین اسکای‌روم روی اندروید" />
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <title>اسکای‌روم من</title>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-logo">س</div>
+        <div class="brand-text">
+          <h1>اسکای‌روم من</h1>
+          <p>کلاس‌های آنلاین، همیشه در دسترس</p>
+        </div>
+      </div>
+      <button id="themeToggle" class="btn btn-ghost" aria-label="تغییر تم">🌙</button>
+    </header>
+
+    <!-- Install banner -->
+    <div id="installBanner" class="install-banner" style="display:none">
+      <div class="install-banner-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="install-banner-content">
+        <div class="install-banner-title">نصب روی گوشی</div>
+        <div class="install-banner-desc">برای دسترسی سریع‌تر روی صفحه اصلی نصب کنید</div>
+      </div>
+      <button id="installBtn">نصب</button>
+      <button id="installDismiss" class="btn btn-ghost" aria-label="بستن" style="color:#fff">✕</button>
+    </div>
+
+    <!-- Android app banner (shown to Android browser users only) -->
+    <div id="appBanner" class="install-banner" style="display:none">
+      <div class="install-banner-icon">📲</div>
+      <div class="install-banner-content">
+        <div class="install-banner-title">اپ اندروید برای پرزنتر</div>
+        <div class="install-banner-desc">اشتراک صفحه گوشی و میکروفون در کلاس فقط با اپ اندروید ممکن است</div>
+      </div>
+      <a id="appBannerBtn" class="btn" style="text-decoration:none" rel="noopener">دانلود</a>
+      <button id="appBannerDismiss" class="btn btn-ghost" aria-label="بستن" style="color:#fff">✕</button>
+    </div>
+
+    <!-- Permissions banner -->
+    <div id="permsBanner" class="card" style="display:none; border-color: var(--primary);">
+      <div class="card-header">
+        <span class="card-title">⚙️ آمادگی میکروفون</span>
+        <button id="permsBannerClose" class="btn btn-ghost btn-sm" aria-label="بستن">✕</button>
+      </div>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.9">
+        برای صحبت در کلاس، میکروفون باید در <strong>داخل صفحه اسکای‌روم</strong> مجاز شود
+        (هر سایت مجوز جداگانه می‌گیرد). این دکمه فقط بررسی می‌کند که میکروفون گوشی شما
+        سالم است و دسترسی سیستم‌عامل دارد.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="permMicBtn" class="btn btn-primary btn-sm">🎤 تست میکروفون</button>
+        <button id="permCamBtn" class="btn btn-primary btn-sm">📷 تست دوربین</button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="form-row" style="margin-bottom:16px">
+      <input
+        id="searchInput"
+        class="input"
+        type="search"
+        placeholder="🔍 جستجو در کلاس‌ها..."
+        autocomplete="off"
+        inputmode="search" />
+    </div>
+
+    <!-- Stats -->
+    <div id="statsBar" class="stats" style="display:none">
+      <div class="stat">
+        <div class="stat-value" id="statCount">0</div>
+        <div class="stat-label">کلاس‌ها</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statRecent">0</div>
+        <div class="stat-label">اخیر</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="statSaved">0</div>
+        <div class="stat-label">با اطلاعات</div>
+      </div>
+    </div>
+
+    <!-- Room list -->
+    <main id="roomList" class="room-list"></main>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="empty" style="display:none">
+      <div class="empty-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+      </div>
+      <h2 class="empty-title">هنوز کلاسی اضافه نکردید</h2>
+      <p class="empty-desc">با دکمه + اولین کلاس اسکای‌روم خود را اضافه کنید</p>
+      <button class="btn btn-primary" onclick="document.getElementById('fabAdd').click()">افزودن اولین کلاس</button>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button id="fabAdd" class="fab" aria-label="افزودن کلاس">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </button>
+
+  <!-- Add/Edit Modal -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h2 id="modalTitle" class="modal-title">افزودن کلاس جدید</h2>
+        <button id="modalClose" class="btn btn-ghost" aria-label="بستن">✕</button>
+      </div>
+      <form id="roomForm" autocomplete="off">
+        <div class="form-row">
+          <label for="name">نام کلاس</label>
+          <input id="name" name="name" class="input" type="text" placeholder="مثال: کلاس ریاضی پایه دهم" maxlength="80" required />
+        </div>
+        <div class="form-row">
+          <label for="url">آدرس یا شناسه کلاس</label>
+          <input id="url" name="url" class="input" type="text" placeholder="https://skyroom.online/chs/room/abc123 یا abc123" required />
+          <p class="helper">می‌توانید فقط شناسه کلاس را وارد کنید</p>
+        </div>
+        <details style="margin-bottom:14px">
+          <summary style="cursor:pointer;font-weight:600;font-size:13px;color:var(--text-muted);padding:6px 0">🔐 اطلاعات ورود (اختیاری)</summary>
+          <div class="note warn" style="margin-bottom:10px;font-size:12px">
+            این اطلاعات فقط روی همین دستگاه و در حافظه مرورگر ذخیره می‌شود و به هیچ سروری ارسال نمی‌شود.
+          </div>
+          <div class="form-row">
+            <label for="username">نام کاربری / ایمیل</label>
+            <input id="username" name="username" class="input" type="text" autocomplete="off" />
+          </div>
+          <div class="form-row">
+            <label for="password">رمز عبور</label>
+            <div class="input-with-icon">
+              <input id="password" name="password" class="input" type="password" autocomplete="new-password" />
+              <button type="button" class="toggle-eye" onclick="const p=document.getElementById('password');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'👁️':'🙈'">👁️</button>
+            </div>
+          </div>
+        </details>
+        <div class="form-row">
+          <label for="notes">یادداشت (اختیاری)</label>
+          <textarea id="notes" name="notes" class="textarea" placeholder="مثلاً: کلاس هر شنبه ساعت ۱۸" maxlength="500"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn" onclick="document.getElementById('modalClose').click()">انصراف</button>
+          <button type="submit" class="btn btn-primary">ذخیره</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

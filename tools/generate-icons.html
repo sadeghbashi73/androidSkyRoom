@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fa-IR" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تولید آیکون PWA</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 20px; direction: rtl; }
+    h1 { font-size: 22px; margin-bottom: 8px; }
+    p { color: #555; line-height: 1.7; }
+    .info { background: #eef2ff; border-right: 4px solid #6366f1; padding: 12px 16px; border-radius: 8px; margin: 16px 0; font-size: 14px; }
+    button {
+      background: #6366f1; color: #fff; border: none; padding: 14px 24px;
+      font-size: 16px; font-weight: 700; border-radius: 10px; cursor: pointer;
+      width: 100%;
+    }
+    button:hover { background: #4f46e5; }
+    .done { margin-top: 16px; padding: 14px; background: #d1fae5; border-radius: 8px; display: none; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <h1>🎨 تولید آیکون‌های PNG از SVG</h1>
+  <p>این صفحه به‌صورت خودکار فایل <code>icons/icon.svg</code> را به سایزهای مختلف PNG تبدیل کرده و دانلود می‌کند.</p>
+  <div class="info">
+    <strong>چرا PNG لازم است؟</strong>
+    برای نصب PWA روی اندروید، مرورگر به فایل‌های PNG در <code>manifest.webmanifest</code> نیاز دارد.
+    مرورگرهای جدید SVG را هم قبول می‌کنند، ولی برای پشتیبانی بیشتر، بهتر است PNG هم موجود باشد.
+  </div>
+  <button id="generateBtn">🚀 تولید و دانلود همه آیکون‌ها</button>
+  <div id="done" class="done">
+    ✅ همه آیکون‌ها تولید شدند. فایل‌ها را در پوشه <code>icons/</code> پروژه قرار دهید:
+    <pre id="fileList"></pre>
+  </div>
+
+  <script>
+    const SIZES = [
+      { name: 'icon-72.png',   size: 72 },
+      { name: 'icon-96.png',   size: 96 },
+      { name: 'icon-128.png',  size: 128 },
+      { name: 'icon-144.png',  size: 144 },
+      { name: 'icon-152.png',  size: 152 },
+      { name: 'icon-192.png',  size: 192 },
+      { name: 'icon-384.png',  size: 384 },
+      { name: 'icon-512.png',  size: 512 },
+      { name: 'icon-maskable-512.png', size: 512, maskable: true },
+    ];
+
+    document.getElementById('generateBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('generateBtn');
+      btn.disabled = true;
+      btn.textContent = 'در حال تولید...';
+      try {
+        const res = await fetch('../icons/icon.svg');
+        const svgText = await res.text();
+        const list = [];
+        for (const { name, size, maskable } of SIZES) {
+          const dataUrl = await renderPNG(svgText, size, maskable);
+          downloadDataUrl(dataUrl, name);
+          list.push(`icons/${name}`);
+          await new Promise(r => setTimeout(r, 100));
+        }
+        document.getElementById('fileList').textContent = list.join('\n');
+        document.getElementById('done').style.display = 'block';
+        btn.textContent = '✅ تولید شد';
+      } catch (e) {
+        alert('خطا: ' + e.message + '\n\nاین فایل را باید از طریق یک وب سرور محلی باز کنید، نه مستقیماً از فایل سیستم.');
+      }
+    });
+
+    function renderPNG(svgText, size, maskable) {
+      return new Promise((resolve, reject) => {
+        const blob = new Blob([svgText], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          if (maskable) {
+            // For maskable icons, ensure content fits within 80% safe zone
+            const safeZone = size * 0.4;
+            ctx.drawImage(img, safeZone, safeZone, size * 0.6, size * 0.6);
+          } else {
+            ctx.drawImage(img, 0, 0, size, size);
+          }
+          URL.revokeObjectURL(url);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    function downloadDataUrl(dataUrl, filename) {
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fa-IR" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6366f1" />
+  <meta name="description" content="ورود به کلاس اسکای‌روم" />
+
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
+
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <title>ورود به کلاس</title>
+</head>
+<body>
+  <div class="app room-page">
+    <!-- Top bar -->
+    <header class="app-header">
+      <button id="backBtn" class="btn btn-ghost" aria-label="بازگشت">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div style="flex:1;text-align:center;font-weight:700;font-size:14px">آماده‌سازی کلاس</div>
+      <button id="editBtn" class="btn btn-ghost btn-sm">ویرایش</button>
+    </header>
+
+    <!-- Hero -->
+    <div class="room-hero-card">
+      <h1 id="roomName">در حال بارگذاری...</h1>
+      <div class="room-id" id="roomId"></div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🚀 اقدام سریع</span>
+      </div>
+      <button id="openBtn" class="btn btn-primary btn-block" style="margin-bottom:10px">
+        🎬 ورود به کلاس اسکای‌روم
+      </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button id="wakeBtn" class="btn btn-sm">🔆 روشن نگه‌داشتن صفحه</button>
+        <button id="shareBtn" class="btn btn-sm">📤 اشتراک‌گذاری لینک</button>
+      </div>
+      <p class="helper">پس از ورود، صفحه اسکای‌روم باز می‌شود. برای خاموش نشدن گوشی در طول کلاس، در تنظیمات اندروید مصرف باتری مرورگر را روی «بدون محدودیت» بگذارید.</p>
+    </div>
+
+    <!-- Mic & camera -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🎤 میکروفون و دوربین</span>
+        <span id="micReadyChip" class="perm-state prompt">بررسی می‌شود</span>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.9">
+        مجوز میکروفون و دوربین باید <strong>داخل خود صفحه اسکای‌روم</strong> داده شود،
+        چون هر سایت مجوز جداگانه می‌گیرد. بار اول که کلاس را باز می‌کنید، اسکای‌روم
+        از شما اجازه می‌گیرد؛ با زدن «مجاز» این دسترسی روی همین مرورگر ذخیره می‌ماند
+        و دیگر پرسیده نمی‌شود.
+      </p>
+
+      <div id="micAppNote" class="note" style="display:none;margin-bottom:12px;font-size:13px">
+        در این اپ، وقتی اسکای‌روم میکروفون یا دوربین بخواهد، اندروید یک بار اجازه می‌پرسد؛
+        «Allow / اجازه» را بزنید. صدا حتی وقتی به برنامه دیگری می‌روید قطع نمی‌شود.
+      </div>
+
+      <div class="perms">
+        <div class="perm">
+          <div class="perm-info">
+            <div class="perm-icon">🎤</div>
+            <div>
+              <div class="perm-label">میکروفون</div>
+              <div class="perm-desc">برای صحبت کردن در کلاس</div>
+            </div>
+          </div>
+          <button id="grantMic" class="btn btn-sm">تست دستگاه</button>
+        </div>
+        <div class="perm">
+          <div class="perm-info">
+            <div class="perm-icon">📷</div>
+            <div>
+              <div class="perm-label">دوربین</div>
+              <div class="perm-desc">برای تصویر شما در کلاس</div>
+            </div>
+          </div>
+          <button id="grantCam" class="btn btn-sm">تست دستگاه</button>
+        </div>
+      </div>
+
+      <div class="row-2" style="margin-top:12px">
+        <button id="micConfirmBtn" class="btn btn-primary btn-sm">✅ مجوز داده شد</button>
+        <button id="micHelpBtn" class="btn btn-sm">عیب‌یابی</button>
+      </div>
+
+      <div id="micHelp" class="note warn" style="margin-top:12px;display:none">
+        <strong>اگر میکروفون کار نمی‌کند:</strong>
+        <ol style="margin:8px 0 0 18px;padding:0">
+          <li>در تنظیمات اندروید: <em>Privacy → Microphone</em> دسترسی برنامه مرورگر را روشن کنید.</li>
+          <li>داخل مرورگر: منوی ⋮ ← <em>Settings</em> ← <em>Site settings</em> ← میکروفون را <em>Allow</em> کنید.</li>
+          <li>اگر اسکای‌روم میکروفون را خاموش نشان می‌دهد، از نوار ابزار پایین آن را روشن کنید.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Screen sharing / presenter -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🖥️ اشتراک صفحه (پرزنتر)</span>
+        <span id="permScreenState" class="perm-state prompt">بررسی می‌شود</span>
+      </div>
+
+      <p id="screenMsg" style="font-size:13px;color:var(--text-muted);line-height:1.9;margin-bottom:14px">
+        در حال بررسی امکانات دستگاه...
+      </p>
+
+      <a id="getApp" class="btn btn-primary btn-block" style="display:none;margin-bottom:14px;text-align:center;text-decoration:none" rel="noopener">
+        📲 دانلود اپ اندروید (اشتراک صفحه + میکروفون)
+      </a>
+
+      <button id="grantScreen" class="btn btn-block" style="display:none;margin-bottom:14px">
+        🖥️ آزمایش اشتراک صفحه
+      </button>
+
+      <div id="altList" style="display:grid;gap:8px">
+        <div class="card-title" style="margin-bottom:2px">جایگزین‌های ارائه از گوشی</div>
+      </div>
+    </div>
+
+    <!-- Login info -->
+    <div id="loginInfo" class="card" style="display:none">
+      <div class="card-header">
+        <span class="card-title">🔑 اطلاعات ورود</span>
+      </div>
+      <div style="display:grid;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-input);border-radius:8px">
+          <span style="color:var(--text-muted);font-size:13px">نام کاربری</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span id="loginUsername" style="font-weight:700"></span>
+            <button id="copyUsername" class="btn btn-ghost btn-sm" aria-label="کپی نام کاربری">📋</button>
+          </span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--bg-input);border-radius:8px">
+          <span style="color:var(--text-muted);font-size:13px">رمز عبور</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span id="loginPassword" style="font-weight:700"></span>
+            <button id="revealPassword" class="btn btn-ghost btn-sm" aria-label="نمایش رمز">👁️</button>
+            <button id="copyPassword" class="btn btn-ghost btn-sm" aria-label="کپی رمز">📋</button>
+          </span>
+        </div>
+      </div>
+      <div class="note" style="margin-top:12px;font-size:12px">
+        <strong>توجه:</strong> به دلیل امنیت سایت اسکای‌روم، هیچ برنامه‌ای نمی‌تواند این
+        اطلاعات را خودکار وارد فرم ورود کند. برای ورود، باید آن‌ها را دستی در
+        صفحه اسکای‌روم وارد کنید — دکمه‌های 📋 برای کپی کردن هستند.
+        این اطلاعات فقط روی همین دستگاه ذخیره می‌شود.
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div id="notesSection" class="card" style="display:none">
+      <div class="card-header">
+        <span class="card-title">📝 یادداشت</span>
+      </div>
+      <p id="roomNotes" style="font-size:14px;line-height:1.8;white-space:pre-wrap"></p>
+    </div>
+
+    <!-- URL -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🔗 آدرس کلاس</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <input id="roomUrl" class="input" type="text" readonly />
+        <button id="copyUrl" class="btn btn-sm">📋 کپی</button>
+      </div>
+      <p class="helper">لینک کلاس را برای دانش‌آموزان بفرستید</p>
+    </div>
+  </div>
+
+  <script type="module" src="./js/room.js"></script>
+</body>
+</html>

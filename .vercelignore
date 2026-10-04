@@ -1,0 +1,13 @@
+node_modules
+certs
+.git
+.env
+.env.local
+*.pem
+*.key
+*.log
+start.cmd
+start.sh
+android
+.github
+README.md
